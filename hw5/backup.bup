@@ -1,0 +1,115 @@
+#include <cstdlib>
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <queue>
+#include <fstream>
+#include <string>
+#include <regex>
+
+void mapperJob();
+void reducerJob();
+int readFile(const std::string &file);
+
+std::mutex fileMtx;
+std::mutex countMtx;
+std::queue<std::string> fileQueue;
+std::queue<int> wordCountQueue;
+std::string target;
+
+int main(int argc, char* argv[]) {
+    if (argc != 4) {
+        std::cout << "usage: " << argv[0] << " <word to count> <# mappers> <# reducers>\n";
+        return 1;
+    }
+    target = argv[1];
+    int numMappers = atoi(argv[2]);
+    int numReducers = atoi(argv[3]);
+    std::thread mappers[numMappers];
+    std::thread reducers[numReducers];
+    std::ifstream file;
+    std::string line;
+    file.open("files.dat");
+    while(file >> line) {
+        fileQueue.push(line);
+    }
+
+    for (int i = 0; i < numMappers; ++i) {
+         mappers[i] = std::thread(mapperJob);
+    }
+    for (int i = 0; i < numMappers; ++i) {
+        mappers[i].join();
+    }
+    for (int i = 0; i < numReducers; ++i) {
+        reducers[i] = std::thread(reducerJob);
+    }
+    for (int i = 0; i < numReducers; ++i) {
+        reducers[i].join();
+    }
+    // int count = wordCountQueue.front();
+    // wordCountQueue.pop();
+    int total = wordCountQueue.front();
+    std::cout << "\nTotal count: " << total << std::endl;
+    // std::cout << "The total count for the word \"" << wordToCount << "\" is " << count << std::endl;
+
+    return 0;
+}
+
+void mapperJob() {
+    while (!fileQueue.empty()) {
+        // file name that the mapper reads
+        std::string fileName;
+        // lock the file queue
+        fileMtx.lock();
+        if (!fileQueue.empty()) {
+            fileName = fileQueue.front();
+            fileQueue.pop();
+        }
+        fileMtx.unlock();
+        // count occurences of word
+        int count = readFile(fileName);
+
+        std::cout << fileName << ": " << count << std::endl;
+        // lock the count queue
+        countMtx.lock();
+        wordCountQueue.push(count);
+        countMtx.unlock();
+    }
+}
+
+void reducerJob() {
+    while (wordCountQueue.size() > 1) {
+        int first = 0, second = 0;
+        // lock count queue
+        countMtx.lock();
+        // make sure there are two elements to add
+        if (wordCountQueue.size() > 1) {
+            first = wordCountQueue.front();
+            wordCountQueue.pop();
+            second = wordCountQueue.front();
+            wordCountQueue.pop();
+        }
+        countMtx.unlock();
+        int sum = first + second;
+        // lock the count queue
+        countMtx.lock();
+        wordCountQueue.push(sum);
+        countMtx.unlock();
+    }
+}
+
+int readFile(const std::string &fileName) {
+    std::string word;
+    int count = 0;
+    std::ifstream file;
+
+    file.open(fileName);
+
+    while (file >> word) {
+        if (word == target) {
+            count++;
+        }
+    }
+
+    return count;
+}

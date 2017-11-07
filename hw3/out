@@ -1,0 +1,22 @@
+ocking write lock in w_lock()
+Holding a write lock until addPerson() finishes
+Unlocked write lock in w_unlock()
+Locking write lock in w_lock()
+Holding a write lock until addPerson() finishes
+Unlocked write lock in w_unlock()
+Locking write lock in w_lock()
+Holding a write lock until addPerson() finishes
+Unlocked write lock in w_unlock()
+Locking write lock in w_lock()
+Holding a write lock until addPerson() finishes
+Unlocked write lock in w_unlock()
+Locking write lock in w_lock()
+Holding a write lock until addPerson() finishes
+Unlocked write lock in w_unlock()
+Locking write lock in w_lock()
+Holding a write lock until addPerson() finishes
+Unlocked write lock in w_unlock()
+Locking write lock in w_lock()
+Holding a read lock until getPersonByID() finishes
+Locking read in r_lock()
+^C
