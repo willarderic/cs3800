@@ -2,14 +2,17 @@
 #define ABSTRACT_ALLOCATOR
 
 #include <list>
+#include <cstddef>
+#include <map>
 
 // Data structure for a chunk of memory
 struct chunk {
     // The location in memory where the start of the chunk of memory is
-    void* loc;
+    size_t loc;
 
     // The size of the chunk of memory
     size_t size;
+    chunk(size_t loc, size_t size) { this->loc = loc; this->size = size; }
 };
 
 /*
@@ -30,7 +33,9 @@ protected:
     char pool[poolSize];
 
     // List of all the free chunks of memory
-    list<chunk> freeMem; 
+    std::list<chunk> free;
+    // Map for the allocated chunks of memory
+    std::map<size_t, size_t> allocated;
 
 public:
     /*
