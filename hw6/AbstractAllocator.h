@@ -4,6 +4,7 @@
 #include <list>
 #include <cstddef>
 #include <map>
+#include <iostream>
 
 // Data structure for a chunk of memory
 struct chunk {
@@ -13,8 +14,8 @@ struct chunk {
     // The size of the chunk of memory
     size_t size;
     chunk(size_t loc, size_t size) { this->loc = loc; this->size = size; }
+    
 };
-
 /*
  *  AbstractAllocator Class
  *  Used for the basis of what every allocator we make should have

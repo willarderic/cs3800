@@ -6,18 +6,22 @@
 #include<fstream>
 #include<vector>
 
-#include "FirstFit.cpp"
+#include "FirstFit.h"
+#include "BestFit.h"
+#include "NextFit.h"
 
 using namespace std;
 
 int main()
 {
-  FirstFit a;
+  NextFit next;
+  BestFit best;
+  FirstFit first;
   vector<void*> allocations;
   ifstream trace("trace.txt");
   int tmp;
   char op;
-  int operand;
+  int operand;q
   try{
     while(trace >> tmp && trace >> op && trace >> operand)
     {
@@ -31,9 +35,6 @@ int main()
           allocations[operand] = nullptr;
           break;
       }
-      a.print();
-      std::string tmp;
-      std::cin >> tmp;
     }
   }
   catch(bad_alloc& b)

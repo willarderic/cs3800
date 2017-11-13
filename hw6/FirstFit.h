@@ -2,12 +2,12 @@
 #include "AbstractAllocator.h"
 #include <cstddef>
 #include <stdexcept>
-#include <vector>
 
 class FirstFit : public AbstractAllocator
 {
 public:
     FirstFit() { 
+      // create new free chunk at loc 0 size 1024 (whole memory space)
       chunk c(0, poolSize);
       free.push_front(c);
       for (int i = 0; i < poolSize; i ++) {
@@ -22,11 +22,12 @@ public:
     void* alloc(size_t bytes) {
       std::list<chunk>::iterator it;
       for (it = free.begin(); it != free.end(); it++) {
+        // check if the bytes fit inside the free memory address
         if (it->size >= bytes) {
           std::cout << "Allocating " << bytes << " bytes at memory location " 
                << it->loc << "." << std::endl;
+          // recording index of the array to return 
           size_t allocation = it->loc;
-          fill(allocation, bytes, true);
           allocated.insert(std::pair<size_t, size_t>(allocation, bytes));
           if (it->size - bytes) {
             // std::cout << "size: " << it->size << " loc: " << it->loc << std::endl;
@@ -48,7 +49,6 @@ public:
       size_t bytes = allocated[index];
       std::cout << "Deallocating " << bytes << " bytes at memory location "
                 << index << "." << std::endl;
-      fill(index, bytes, false);
       std::map<size_t, size_t>::iterator it;
       it = allocated.find(index);
       if (it != allocated.end())
@@ -60,16 +60,20 @@ public:
     }
 
     void merge() {
-      std::list<chunk>::iterator outer;
+      std::list<chunk>::iterator outer = free.begin();
       std::list<chunk>::iterator inner;
-      for (outer = free.begin(); outer != free.end(); outer++) {
-        for (inner = free.begin(); inner != free.end(); inner++) {
+      while (outer != free.end()) {
+        inner = free.begin();
+        while (inner != free.end()) {
+          std::cout << (outer->loc + outer->size) << ", " << inner->loc << std::endl;
           if ((outer->loc + outer->size) == inner->loc) {           
             outer->size = outer->size + inner->size;      
-            free.erase(inner);
-            break;
+            free.erase(inner++);
+            continue;
           }
+          inner++;
         }
+        outer++;
       }
     }
 
