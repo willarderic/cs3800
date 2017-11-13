@@ -51,16 +51,21 @@ public:
     }
 
     void dealloc(void* ptr) {
+      // get index of what we are deallocating
       size_t index = (char *)ptr - &pool[0];
       size_t bytes = allocated[index];
       std::cout << "Deallocating " << bytes << " bytes at memory location "
                 << index << "." << std::endl;
       std::map<size_t, size_t>::iterator it;
+      // find the index to delete the item from allocated map
       it = allocated.find(index);
       if (it != allocated.end())
         allocated.erase(it);
+      // create new free memory chunk and add it to the free memory list
       chunk c(index, bytes);
       free.push_back(c);
+      // sort the free memory array, and merge together the free chunks that are
+      // directly adjacent to one another
       free.sort(compLocation);
       merge();
     }
@@ -72,9 +77,12 @@ public:
         inner = free.begin();
         while (inner != free.end()) {
           std::cout << (outer->loc + outer->size) << ", " << inner->loc << std::endl;
+          // check if the outer iterator's size + location = another location
           if ((outer->loc + outer->size) == inner->loc) {           
+            // if it does increase the outer iterators memory and erase the inner
             outer->size = outer->size + inner->size;      
             free.erase(inner++);
+            // continue onto the next iteration
             continue;
           }
           inner++;

@@ -50,6 +50,56 @@ public:
      *  To be implemented specific to each type of allocation algorithm
      */
     virtual void dealloc(void* pointer) = 0;
+
+    /*
+     *  Function to get the total free size of memory
+     */
+    size_t totalFree() {
+        size_t total = 0;
+        for (auto it = free.begin(); it != free.end(); it++) {
+            total += it->size;
+        }
+        return total;    
+    } 
+    
+    /*
+     *  Function to get the maximum free size of memory
+     */
+    size_t maxFree() {
+        size_t max = 0;
+        for (auto it = free.begin(); it != free.end(); it++) {
+            if (it->size > max)
+              max = it->size;
+        }
+        return max;
+    }
+    
+    /*
+     *  Function to get the average free size of memory
+     */
+    size_t avgFree() {
+        size_t avg = totalFree() / free.size();
+        return avg;
+    }
+    
+    /*
+     * Function to get number of free chunks
+     */
+    size_t numChunks() {
+      return free.size();
+    }
+
+    /*
+     *  Function to get the min free size of memory
+     */
+    size_t minFree() {
+        size_t min = 1024;
+        for (auto it = free.begin(); it != free.end(); it++) {
+            if (it->size < min)
+              min = it->size;
+        }
+        return min;
+    }
 };
 
 #endif

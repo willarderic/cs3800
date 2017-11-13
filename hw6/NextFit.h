@@ -52,7 +52,6 @@ public:
           if (next == free.end()) {
               next = free.begin();
             }
-          std::cout << "next: " << next->loc << ", " << next->size << std::endl;
           // return address of the memory allocated
           return &pool[allocation];
         }
@@ -82,7 +81,6 @@ public:
       
       std::cout << "Deallocating " << bytes << " bytes at memory location "
                 << index << "." << std::endl;
-      std::cout << "next: " << next->loc << ", " << next->size << std::endl;
       // for printing out prettily
       std::map<size_t, size_t>::iterator it;
       // get iterator at index to delete from allocations
@@ -104,10 +102,16 @@ public:
       while (outer != free.end()) {
         inner = free.begin();
         while (inner != free.end()) {
-          if ((outer->loc + outer->size) == inner->loc) {           
+          // check to see if the free chunks are adjacent
+          if ((outer->loc + outer->size) == inner->loc) { 
+            // fill out the outer chunk with the size of inner          
             outer->size = outer->size + inner->size;
+            // if the inner iterator is the next iterator
+            // then we need to make the next iterator point to
+            // the next thing so we don't delete it
             if (next == inner) {
               next++;
+              // wrap around to beginning
               if (next == free.end()) {
                 next = free.begin();
               }
